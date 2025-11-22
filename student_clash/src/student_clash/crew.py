@@ -82,3 +82,7 @@ class BalancedLifeCrew:
             process=Process.sequential,
             verbose=True
         )
+    
+def create_crew():
+    """Helper function to create and return the crew"""
+    return BalancedLifeCrew().crew()
