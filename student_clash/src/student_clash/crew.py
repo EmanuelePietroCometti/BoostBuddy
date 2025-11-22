@@ -2,6 +2,8 @@ from crewai import Agent, Crew, Process, Task
 from crewai.project import CrewBase, agent, crew, task
 from crewai.agents.agent_builder.base_agent import BaseAgent
 from typing import List
+from crewai_tools import FileSearchTool
+from src.tools import open_food_facts_tool
 
 @CrewBase
 class BalancedLifeCrew:
@@ -18,6 +20,27 @@ class BalancedLifeCrew:
             'trainer': 'student_clash/agents/trainer.yaml',
             'nutritionist': 'student_clash/agents/nutritionist.yaml',
         }
+        self.tasks_config = {
+            'fitness_task': 'student_clash/tasks/fitness_task.yaml',
+            'diet_task': 'student_clash/tasks/diet_task.yaml',
+            'stress_task': 'student_clash/tasks/stress_task.yaml',
+        }
+        self.trainer_tool = FileSearchTool(
+            description="Tool for searching and retrieving precise information from corporate training log files.",
+            config={
+                "search_tool": {
+                    "dir_path": "knowledge/fitness" 
+                }
+            }
+        )
+        self.nutritionist_tool = FileSearchTool(
+            description="Tool for consulting official nutritional guidelines and food tables.",
+            config={
+                "search_tool": {
+                    "dir_path": "knowledge/nutrition" 
+                }
+            }
+        )
     # Learn more about YAML configuration files here:
     # Agents: https://docs.crewai.com/concepts/agents#yaml-configuration-recommended
     # Tasks: https://docs.crewai.com/concepts/tasks#yaml-configuration-recommended
@@ -45,7 +68,7 @@ class BalancedLifeCrew:
     def nutritionist(self) -> Agent:
         return Agent(
             config=self.agents_config['nutritionist'], 
-            tools=[self.nutritionist_tool],
+            tools=[self.nutritionist_tool, open_food_facts_tool],
             memory=True,
             verbose=True
         )
